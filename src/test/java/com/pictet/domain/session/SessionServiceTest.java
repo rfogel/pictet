@@ -288,16 +288,19 @@ public class SessionServiceTest extends BaseTest {
             var nextSessionStatus = sessionService.next(sessionStatus.getSessionId(), new NextAction(nextAction));
 
             nextAction = getNextActionByDescription(nextSessionStatus, "Gather your thoughts");
-            nextSessionStatus = sessionService.next(sessionStatus.getSessionId(), new NextAction(nextAction));
+            var nextSessionStatusWithConsequence = sessionService.next(sessionStatus.getSessionId(), new NextAction(nextAction));
 
-            nextAction = getNextActionByDescription(nextSessionStatus, "You try to open the door");
+            nextAction = getNextActionByDescription(nextSessionStatusWithConsequence, "You try to open the door");
             nextSessionStatus = sessionService.next(sessionStatus.getSessionId(), new NextAction(nextAction));
 
             nextAction = getNextActionByDescription(nextSessionStatus, "Gather your thoughts");
             var finalSessionStatus = sessionService.next(sessionStatus.getSessionId(), new NextAction(nextAction));
 
             assertAll(
+                    () -> assertNotNull(nextSessionStatusWithConsequence.getLastActionConsequence()),
+                    () -> assertEquals("You're getting a little more crazier...", nextSessionStatusWithConsequence.getLastActionConsequence().getText()),
                     () -> assertEquals(SessionProgress.FAILED, finalSessionStatus.getProgress()),
+                    () -> assertEquals("You're getting a little more crazier...", nextSessionStatusWithConsequence.getLastActionConsequence().getText()),
                     () -> sessionRepository.findById(sessionStatus.getSessionId()).ifPresent(session -> {
                         assertTrue(session.getHealthPoints() <= 0);
                         assertEquals(SessionProgress.FAILED, session.getProgress());

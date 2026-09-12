@@ -87,6 +87,7 @@ public class SessionService {
                     .sessionId(session.getId())
                     .text("You have lost all your health points. Game over.")
                     .options(List.of())
+                    .lastActionConsequence(consequence.orElse(null))
                     .progress(SessionProgress.FAILED)
                     .get();
         }
@@ -104,6 +105,7 @@ public class SessionService {
                     .sessionId(session.getId())
                     .text(nextSection.getText())
                     .options(List.of())
+                    .lastActionConsequence(consequence.orElse(null))
                     .progress(SessionProgress.COMPLETED)
                     .get();
         }
