@@ -3,6 +3,7 @@ package com.pictet.domain.session.service;
 import com.pictet.common.exception.InvalidOptionException;
 import com.pictet.common.exception.NotFoundException;
 import com.pictet.domain.book.model.Book;
+import com.pictet.domain.book.model.Consequence;
 import com.pictet.domain.book.model.Option;
 import com.pictet.domain.book.service.BookService;
 import com.pictet.domain.session.dto.CreateSession;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.pictet.common.exception.ErrorMessage.BOOK_NOT_FOUND;
@@ -75,7 +77,7 @@ public class SessionService {
 
         var optionSelected = getOptionSelected(session, book, nextAction);
 
-        handleConsequence(session, optionSelected);
+        var consequence = handleConsequence(session, optionSelected);
 
         if (session.getHealthPoints() <= 0) {
             log.info("Session {} has lost all health points. Marking session as failed.", session.getId());
@@ -117,6 +119,7 @@ public class SessionService {
                 .text(nextSection.getText())
                 .options(options)
                 .progress(SessionProgress.IN_PROGRESS)
+                .lastActionConsequence(consequence.orElse(null))
                 .get();
     }
 
@@ -136,7 +139,7 @@ public class SessionService {
                 .orElseThrow(() -> new InvalidOptionException(INVALID_OPTION));
     }
 
-    void handleConsequence(Session session, Option option) {
+    Optional<Consequence> handleConsequence(Session session, Option option) {
         if (option.getConsequence() != null) {
             switch (option.getConsequence().getType()) {
                 case LOSE_HEALTH -> {
@@ -150,6 +153,7 @@ public class SessionService {
                 default -> throw new IllegalStateException("Unexpected value: " + option.getConsequence());
             }
         }
+        return Optional.ofNullable(option.getConsequence());
     }
 
     List<SessionOption> getSessionOptions(Set<Option> options) {

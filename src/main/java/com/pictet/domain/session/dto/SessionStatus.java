@@ -1,5 +1,6 @@
 package com.pictet.domain.session.dto;
 
+import com.pictet.domain.book.model.Consequence;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,4 +20,5 @@ public class SessionStatus {
     private String text;
     private List<SessionOption> options;
     private SessionProgress progress;
+    private Consequence lastActionConsequence;
 }

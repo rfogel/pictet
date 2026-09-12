@@ -34,6 +34,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -257,12 +258,15 @@ public class SessionServiceTest extends BaseTest {
             var nextSessionStatus = sessionService.next(sessionStatus.getSessionId(), new NextAction(nextAction));
 
             nextAction = getNextActionByDescription(nextSessionStatus, "Try to scan the area with your hands");
-            nextSessionStatus = sessionService.next(sessionStatus.getSessionId(), new NextAction(nextAction));
+            var nextSessionStatusWithConsequence = sessionService.next(sessionStatus.getSessionId(), new NextAction(nextAction));
 
-            nextAction = getNextActionByDescription(nextSessionStatus, "Try to open the door with the key");
+            nextAction = getNextActionByDescription(nextSessionStatusWithConsequence, "Try to open the door with the key");
             var finalSessionStatus = sessionService.next(sessionStatus.getSessionId(), new NextAction(nextAction));
 
             assertAll(
+                    () -> assertNull(nextSessionStatus.getLastActionConsequence()),
+                    () -> assertNotNull(nextSessionStatusWithConsequence.getLastActionConsequence()),
+                    () -> assertEquals("As you move your hands left and right under the bed, you cut yourself on a rusty nail.", nextSessionStatusWithConsequence.getLastActionConsequence().getText()),
                     () -> assertEquals(SessionProgress.COMPLETED, finalSessionStatus.getProgress()),
                     () -> sessionRepository.findById(sessionStatus.getSessionId()).ifPresent(session -> {
                         assertEquals(4, session.getHealthPoints());
