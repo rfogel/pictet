@@ -1,0 +1,21 @@
+spring:
+  threads:
+    virtual:
+      enabled: true
+  jackson:
+    default-property-inclusion: non_null
+    mapper.ACCEPT_CASE_INSENSITIVE_ENUMS: true
+  mongodb.uri: ${MONGODB_URI:mongodb://root:root@localhost:27018/adventure_book?authSource=admin}
+  main:
+    banner-mode: "off"
+    lazy-initialization: true
+
+server:
+  compression:
+    enabled: true
+    mime-types: application/json,application/json;charset=utf-8
+    min-response-size: 10240
+  error:
+    include-stacktrace: never
+  servlet.context-path: /
+  port: 9090
